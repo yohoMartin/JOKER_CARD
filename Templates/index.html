@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小丑抽卡</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        h1, h2 { margin: 10px; }
+        #button {
+            background: none; border: none; padding: 0; cursor: pointer;
+            width: 100vw; height: 100vw; max-width: 600px; max-height: 600px;
+        }
+        #button img {
+            width: 100%; height: 100%; object-fit: contain; transition: transform 0.2s ease;
+        }
+        #button img:hover { transform: scale(1.03); }
+        #button img:active { transform: scale(0.97); }
+        #summon_button { margin-top: 20px; }
+        #animation {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        object-fit: cover;
+        pointer-events: none; /* 禁止互動（滑鼠點擊/右鍵） */
+        }
+        #show-card{
+            position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="main-content">
+        {% include 'main_c.html' %}
+    </div>
+
+    <script>
+        //主界面事件
+        function getDeviceType() {
+            const ua = navigator.userAgent.toLowerCase();
+            if (ua.includes("mobile")) {
+                return "Mobile";
+            } else if (ua.includes("tablet")) {
+                return "Tablet";
+            } else {
+                return "Desktop";
+            }
+        }
+        function getCookie(name) {
+        let cookieArr = document.cookie.split(';');
+        for (let i = 0; i < cookieArr.length; i++) {
+            let cookie = cookieArr[i].trim();
+            if (cookie.indexOf(name + "=") == 0) {
+                return cookie.substring(name.length + 1, cookie.length);
+            }
+        }
+    return ""; // 如果沒找到，返回空字串
+}
+
+
+        // 存到 cookie
+        let device = getCookie("device");  // 假設有一個函數 getCookie() 用來獲取 cookie
+        if (!device) {
+            device = getDeviceType();
+            document.cookie = "device=" + device + "; path=/; max-age=" + (60*60*24*30);
+            }
+
+
+        function bindMainPageEvents() {
+            const button = document.getElementById('button');
+            const summon = document.getElementById('summon_button');
+            if (button) {
+                button.onclick = function () {
+                    fetch('/click_button', { method: 'POST' })
+                        .then(res => res.json())
+                        .then(data => {
+                            document.getElementById('counter').innerText = data.counter;
+                            document.getElementById('tokens').innerText = data.tokens;
+                            document.getElementById('click-button').src = data.but_img;
+                        });
+                };
+            }
+            if (summon) {
+                summon.onclick = function () {
+                    fetch('/summon_clown1', { method: 'POST' })  //傳回動畫html和tokens和card
+                        .then(res => {
+                            if (res.headers.get("Content-Type").includes("application/json")) {
+                                return res.json().then(data => {
+                                    alert(data.message);
+                                    document.getElementById('tokens').innerText = data.tokens;
+                                });
+                            } else {
+                                return res.text().then(html => {
+                                    document.getElementById('main-content').innerHTML = html;
+                                    bindCardaniEvents();  //改成aniEvents
+                                });
+                            }
+                        });
+                };
+            }
+        }
+
+        //卡牌呈現介面_跳轉到主頁
+        function bindCardPageEvents() {
+            const goback = document.getElementById('goback_button');
+            const summon = document.getElementById('summon_button');
+            if (goback) {
+                goback.onclick = function () {
+                    fetch('/goback', { method: 'POST' })
+                        .then(res => res.text())
+                        .then(html => {
+                            document.getElementById('main-content').innerHTML = html;
+                            bindMainPageEvents();
+                        });
+                };
+            }
+            if (summon) {
+                summon.onclick = function () {
+                    fetch('/summon_clown1', { method: 'POST' })  //傳回動畫html和tokens和card
+                        .then(res => {
+                            if (res.headers.get("Content-Type").includes("application/json")) {
+                                return res.json().then(data => {
+                                    alert(data.message);
+                                    document.getElementById('tokens').innerText = data.tokens;
+                                });
+                            } else {
+                                return res.text().then(html => {
+                                    document.getElementById('main-content').innerHTML = html;
+                                    bindCardaniEvents();  //改成aniEvents
+                                });
+                            }
+                        });
+                };
+            }
+        }
+        //如果動畫播完
+        function bindCardaniEvents() {
+            const video = document.getElementById('animation');
+            if (video) {
+                video.addEventListener('ended', () => {
+                    fetch('/show_card', { method: 'POST' })
+                        .then(res => res.text())
+                        .then(html => {
+                            document.getElementById('main-content').innerHTML = html;
+                            bindCardPageEvents();
+                        });
+                });
+            }
+        }
+
+
+        //介面初始化
+        bindMainPageEvents();
+    </script>
+</body>
+</html>

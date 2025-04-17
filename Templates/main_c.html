@@ -1,0 +1,6 @@
+<h1>小丑們累計點擊次數: <span id="counter">{{ counter }}</span></h1>
+<h2>你擁有的小丑值: <span id="tokens">{{ tokens }}</span></h2>
+<button id="button">
+    <img id="click-button" src="{{ url_for('static', filename=but_img) }}" onclick="clickButton()" />
+</button>
+<button id="summon_button">花費50個小丑值召喚小丑</button>

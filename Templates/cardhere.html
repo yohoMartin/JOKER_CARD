@@ -1,0 +1,7 @@
+<div id="show-card">
+    <h2>抽到的卡片！</h2>
+    <img src="{{ url_for('static', filename=card) }}" alt="抽到的卡片" style="max-width: 300px;">
+    <p>剩餘小丑值：<span id="tokens">{{ tokens }}</span></p>
+    <button id="goback_button">返回主畫面</button>
+    <button id="summon_button">再次召喚</button>
+</div>
