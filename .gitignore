@@ -1,0 +1,37 @@
+# 虛擬環境
+.venv/
+env/
+venv/
+
+# Python 編譯暫存檔
+__pycache__/
+*.py[cod]
+*.so
+
+# macOS 系統檔
+.DS_Store
+
+# VS Code 編輯器設定
+.vscode/
+
+# JetBrains IDE 設定 (PyCharm 等)
+.idea/
+
+# 本地測試產生的檔案
+*.log
+*.sqlite3
+*.db
+*.bak
+*.swp
+
+# Jupyter Notebook 的 checkpoints
+.ipynb_checkpoints/
+
+# 暫時產出的 JSON、資料備份檔
+*.json~
+
+# 忽略使用者個人 JSON 檔（可視情況移除）
+#user_point.json
+
+# 如果你用到 node.js 相關工具
+node_modules/
